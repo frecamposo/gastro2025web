@@ -1,0 +1,295 @@
+<!-- Inicio jquery local a la página -->
+<script src="/static/external/js/jquery-3.6.4.min.js"></script>
+<script type="text/javascript">
+  $(document).ready(function () {
+    $("#modalError").modal("show");
+
+    /* Construcción del modal de la confirmación de eliminación */
+    $(".btn-secondary").click(function () {
+      let id_producto = $(this).attr("id");
+      $("#confirmar-eliminacion").attr("data-value", id_producto);
+      let nom_producto = $("#nom-producto-" + id_producto).text();
+      $("#mensaje-modal").text(
+        '¿Está seguro que desea eliminar el producto "' + nom_producto + '"?'
+      );
+    });
+
+    /* Manejo de la confirmación de la eliminación */
+    $("#confirmar-eliminacion").click(function () {
+      let id_producto = $(this).attr("data-value");
+      $(location).prop("href", "/producto/eliminar/" + id_producto);
+    });
+  });
+</script>
+<!-- Fin jquery local a la página -->
+
+<div metal:use-macro="load: ../shared/_layout-principal.pt">
+  <div metal:fill-slot="content" tal:omit-tag="True">
+    <div class="content">
+      <div class="container">
+        <!-- Inicio fila para ingresar columnas de bootstrap -->
+        <div class="row align-items-center">
+          <!-- Inicio contenido -->
+
+          <!-- Inicio zona visible de usuario conectado -->
+          <div tal:condition="esta_conectado" tal:omit-tag="True">
+            <div class="row">
+              <div class="col-12">
+                <h4 class="section-title">Listado Productos en Bodega</h4>
+                <input
+                  type="button"
+                  value="Actualizar Seccionados"
+                  class="btn btn-secondary mb-3"
+                  onclick="verificarSeleccionados()"
+                />
+                <input
+                  type="button"
+                  value="Quitar Seccionados"
+                  class="btn btn-secondary mb-3"
+                  onclick="quitarSeleccionados()"
+                />                
+              </div>
+            </div>
+
+
+            <table class="table table-striped-custom">
+              <thead class="tabla-encabezado">
+                <tr>
+                  <th scope="col">Seccion</th>
+                  <th scope="col">Producto</th>
+                  <th class="text-end" scope="col">Precio</th>
+                  <th scope="col">Unidad</th>
+                  <th scope="col">Categoría</th>
+                  <th scope="col">Cantidad</th>
+                  <th scope="col">Stock Critico</th>
+                  <th scope="col"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr tal:repeat="p productos" tal:omit-tag="False">
+                  <td>
+                    <input
+                      type="checkbox"
+                      name="opciones"
+                      id="Id-${p.id_producto}"
+                      value="Id-${p.id_producto}"
+                    />
+                  </td>
+                  <td id="nom-producto-${p.id_producto}">${p.nom_producto}</td>
+                  <td class="text-end" id="precio-${p.id_producto}">
+                    ${'${:,}'.format(p.precio)}
+                  </td>
+                  <td id="${p.id_producto}">${p.nom_unidad_medida}</td>
+                  <td id="${p.nom_categ_producto}">${p.nom_categ_producto}</td>
+                  <td id="${p.cantidad}">
+                    <input
+                      type="number"
+                      name="txtCantidadMod${p.id_producto}"
+                      id="txtCantidadMod${p.id_producto}"
+                      value="${p.cantidad}"
+                    />
+                  </td>
+                  <td id="${p.stock_critico}">
+                    <input
+                      type="number"
+                      name="txtStockCriticoMod${p.id_producto}"
+                      id="txtStockCriticoMod${p.id_producto}"
+                      value="${p.stock_critico}"
+                    />
+                  </td>
+                  <!-- <td id="${p.id_producto}">${p}</td> -->
+                  <td>
+                    <button
+                      type="button"
+                      class="btn btn-warning"
+                      onclick="modificar(${p.id_producto})"
+                    >
+                      Actualizar
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <script>
+              function quitarSeleccionados() {
+                const todosLosCheckboxes = document.querySelectorAll('input[name="opciones"]');
+                todosLosCheckboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+
+              }
+
+              function verificarSeleccionados() {
+                const checkboxesMarcados = document.querySelectorAll(
+                  'input[name="opciones"]:checked'
+                );
+                const valoresSeleccionados = Array.from(checkboxesMarcados).map(
+                  (checkbox) => checkbox.value
+                );
+                //alert("Productos seleccionados: " + valoresSeleccionados.join(", "));
+                const cantidadSeleccionadas ={};
+                for (let i = 0; i < valoresSeleccionados.length; i++) {
+                    const idCompleto = valoresSeleccionados[i]; // "Id-123"
+                    const idProducto = idCompleto.split("-")[1]; // "123"
+                    let cantidad = document.getElementById(
+                        "txtCantidadMod" + idProducto
+                    ).value;
+                    let stock_critico = document.getElementById(
+                        "txtStockCriticoMod" + idProducto
+                    ).value;
+                    cant = parseFloat(cantidad);
+                    sc = parseFloat(stock_critico);
+                    if (cant < 0) {
+                        alert(
+                        "La cantidad no puede ser negativa o igual a cero " +
+                            cantidad
+                        );
+                        return;
+                  }
+                  if (sc < 0) {
+                    alert(
+                      "El stock critico no puede ser negativo o igual a cero " +
+                        stock_critico
+                    );
+                    return;
+                  }
+                  cantidadSeleccionadas[idProducto] = {
+                    id_producto: idProducto,
+                    cantidad: cant,
+                    stock_critico: sc,
+                  };
+                
+                
+                }
+                const texto=JSON.stringify(cantidadSeleccionadas);
+                //alert("Datos a enviar: " + texto);
+                location.href =
+                  "/bodega/producto/actualizar/all/" + texto;
+                
+              }
+                            
+              function modificar(id) {
+                let cantidad = document.getElementById(
+                  "txtCantidadMod" + id
+                ).value;
+                let stock_critico = document.getElementById(
+                  "txtStockCriticoMod" + id
+                ).value;
+                cant = parseFloat(cantidad);
+                sc = parseFloat(stock_critico);
+                alert("Cantidad:" + cant);
+                if (cant < 0) {
+                  alert(
+                    "La cantidad no puede ser negativa o igual a cero " +
+                      cantidad
+                  );
+                  return;
+                }
+                if (sc < 0) {
+                  alert(
+                    "El stock critico no puede ser negativo o igual a cero " +
+                      stock_critico
+                  );
+                  return;
+                }
+                location.href =
+                  "/bodega/producto/actualizar/" + id + "/" + cant + "/" + sc;
+                //alert("Modificar producto ID: " + id + " Cantidad: " + cant + " Stock Critico: " + sc);
+              }
+            </script>
+            <!-- Inicio modal de confirmación de eliminación -->
+            <div
+              class="modal fade"
+              id="modalEliminacion"
+              tabindex="-1"
+              aria-labelledby="modal-confirmacion"
+              aria-hidden="true"
+            >
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="modal-confirmacion">
+                      Eliminar
+                    </h5>
+                    <button
+                      type="button"
+                      class="btn-close"
+                      data-bs-dismiss="modal"
+                      aria-label="Close"
+                    ></button>
+                  </div>
+                  <div id="mensaje-modal" class="modal-body"></div>
+                  <div class="modal-footer">
+                    <button
+                      id="confirmar-eliminacion"
+                      data-value="id_producto_eliminar"
+                      type="button"
+                      class="btn btn-warning"
+                      data-bs-dismiss="modal"
+                    >
+                      Eliminar
+                    </button>
+                    <button
+                      id="cancelar-eliminacion"
+                      type="button"
+                      class="btn btn-secondary"
+                      data-bs-dismiss="modal"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Fin modal de confirmación de eliminación -->
+
+            <!-- Inicio modal de error en la eliminación -->
+            <div
+              tal:condition="msg_error"
+              tal:omit-tag="False"
+              class="modal fade"
+              id="modalError"
+              tabindex="-1"
+              aria-labelledby="modal-error"
+              aria-hidden="true"
+            >
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="modal-error">Error</h5>
+                    <button
+                      type="button"
+                      class="btn-close"
+                      data-bs-dismiss="modal"
+                      aria-label="Close"
+                    ></button>
+                  </div>
+                  <div id="mensaje-modal" class="modal-body">${msg_error}</div>
+                  <div class="modal-footer">
+                    <button
+                      id="confirmar-cerrado"
+                      type="button"
+                      class="btn btn-warning"
+                      data-bs-dismiss="modal"
+                    >
+                      Cerrar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Fin modal de confirmación de eliminación -->
+          </div>
+          <!-- Fin zona visible de usuario conectado -->
+
+          <!-- Fin contenido -->
+        </div>
+        <!-- Fin fila para ingresar columnas de bootstrap -->
+      </div>
+    </div>
+  </div>
+
+  <!-- CSS adicional -->
+  <div metal:fill-slot="additional-css" tal:omit-tag="True"></div>
+</div>

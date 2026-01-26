@@ -1,0 +1,114 @@
+<div metal:use-macro="load: ../shared/_layout-principal.pt">
+  <div metal:fill-slot="content" tal:omit-tag="True">
+    <div class="content">
+      <div class="container">
+        <!-- Inicio zona visible de usuario conectado -->
+        <div tal:condition="esta_conectado" tal:omit-tag="True">
+          <div style="background-color: burlywood;padding: 20px;margin-bottom: 10px;">
+            <h1>Bodega Duoc</h1>
+          </div>
+          
+
+          <div style="display: flex;flex-wrap: wrap;justify-content: space-between;">
+            
+            <div class="card" style="width: 18rem">
+              <img
+                src="/static/img/bodega3.jpg"
+                class="card-img-top"
+                alt="..."
+              />
+              <div class="card-body">
+                <h5 class="card-title">Ingreso Producto</h5>
+                <p class="card-text">
+                  Ingrese las planillas de ingreso de productos en bodega y asi
+                  aumentar el stock disponible
+                </p>
+                <a href="/bodega/registro" class="btn btn-primary">Abri Ventana</a>
+              </div>
+            </div>
+
+            <div class="card" style="width: 18rem">
+              <img
+                src="/static/img/bodega1.jpg"
+                class="card-img-top"
+                alt="..."
+              />
+              <div class="card-body">
+                <h5 class="card-title">Retiro de Productos</h5>
+                <p class="card-text">
+                  Gestione el retiro de productos desde la bodega y asi
+                  actualizar el stock disponible
+                </p>
+                <a href="/bodega/retiro_productos" class="btn btn-primary">Abri Ventana</a>
+              </div>
+            </div>
+
+             <div class="card" style="width: 18rem">
+              <img
+                src="/static/img/bodega.jpg"
+                class="card-img-top"
+                alt="..."
+              />
+              <div class="card-body">
+                <h5 class="card-title">Devolucion de Productos</h5>
+                <p class="card-text">
+                  Reintegro de productos que no se emplearon en clases
+                </p>
+                <a href="/bodega/listado_profesores" class="btn btn-primary">Abri Ventana</a>
+              </div>
+            </div>
+
+            <div class="card" style="width: 18rem;">
+              <img
+                src="/static/img/mermas2.jpg"
+                class="card-img-top"
+                alt="..."
+              />
+              <div class="card-body">
+                <h5 class="card-title">Mermas</h5>
+                <p class="card-text">
+                  Gestione el retiro de productos por vencimiento o mal estado
+                </p>
+                <a href="#" class="btn btn-primary">Abri Ventana</a>
+              </div>
+            </div>
+
+            <div class="card" style="width: 18rem;margin-top:10px;">
+              <img
+                src="/static/img/reportes.jpg"
+                class="card-img-top"
+                alt="..."
+              />
+              <div class="card-body">
+                <h5 class="card-title">Reportes</h5>
+                <p class="card-text">
+                  Gestione los reportes de estado de stock, productos disponibles, busquedas generales
+                </p>
+                <a href="/bodega/listado" class="btn btn-primary">Abri Ventana</a>
+              </div>
+            </div>
+
+
+            <div class="card" style="width: 18rem;margin-top:10px;">
+              <img
+                src="/static/img/reportes.jpg"
+                class="card-img-top"
+                alt="..."
+              />
+              <div class="card-body">
+                <h5 class="card-title">Productos en Bodega</h5>
+                <p class="card-text">
+                  Actualizacion de productos disponibles en bodega, cantidad y stock critico
+                </p>
+                <a href="/bodega/producto/lista" class="btn btn-primary">Abri Ventana</a>
+              </div>
+            </div>
+
+
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

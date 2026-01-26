@@ -1,0 +1,361 @@
+<div metal:use-macro="load: ../shared/_layout-principal.pt">
+  <div metal:fill-slot="content" tal:omit-tag="True">
+    <div class="content">
+      <div class="container">
+        <div>
+          <h2 class="mb-4">Formulario de Ingreso de Productos</h2>
+          <h4>Responsable del Ingreso <b>${login_conectado}</b></h4>
+          <form>
+            <table>
+              <tr>
+                <td style="padding-left: 20px; width: 150px">
+                  <label for="fecha-ingreso">Fecha Ingreso</label>
+                  <input type="date" class="form-control" id="fecha-ingreso" />
+                </td>
+                <td style="padding-left: 20px; width: 150px">
+                  <label for="factura">Factura</label>
+                  <input type="number" name="factura" id="factura" class="form-control" required/>
+                </td>
+                <td style="padding-left: 20px; width: 300px">
+                  <label for="proveedor">Proveedor</label>
+                  <input type="text" name="proveedor" id="proveedor" class="form-control" required />
+                </td>
+                <td style="padding-left: 20px; width: 400px">
+                  <label for="buscarProducto">Ingrese Producto:</label>
+                  <input class="form-control" list="opcionesProductos" id="buscarProducto" placeholder="Escribe para buscar..." />
+                </td>
+                <td style="padding-left: 20px; width: 100px">
+                  <label for="cantidad">Cantidad:</label>
+                  <input type="number" name="cantidad" id="cantidad" class="form-control" min="1" required />
+                </td>
+
+                <td style="padding-left: 20px">
+                  <label for="">Agregar Producto</label>
+                  <button class="btn btn-primary" type="button" onclick="agregar()">Agregar</button>
+                </td>
+              </tr>
+            </table>
+          </form>
+
+          <div style="margin-top: 50px">
+            <table class="table" id="tabla_productos">
+              <thead>
+                <tr>
+                  <th scope="col">Numero</th>
+                  <th scope="col">Codigo</th>
+                  <th scope="col">Nombre</th>
+                  <th scope="col">Precio</th>
+                  <th scope="col">Cantidad</th>
+                  <th scope="col">Total</th>
+                  <th scope="col">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="cuerpoTablaProductos"></tbody>
+            </table>
+            <table class="table">
+              <tr>
+                <td>
+                  <form id="miFormulario" action="/bodega/registro" method="post">
+                    <button class="btn btn-success" type="submit">Guardar</button>
+                    <button class="btn btn-warning" type="button" onclick="volver()" >Volver</button>
+                    <!-- datos enviados -->
+                    <input type="hidden" name="fecha_ingreso_form" id="fecha_ingreso_form" />
+                    <input type="hidden" name="factura_form" id="factura_form" />
+                    <input type="hidden" name="proveedor_form" id="proveedor_form"/>
+                    <input type="hidden" name="responsable_form" id="proveedor_form" value="${login_conectado}"/>
+                    <textarea name="listado" id="listado" hidden></textarea>
+                  </form>                  
+                </td>
+                <td>
+                  
+                </td>
+              </tr>
+            </table>
+
+            <!-- data lista-->
+            <datalist id="opcionesProductos">
+              <option tal:repeat="p productos" tal:attributes="value p.nom_producto">
+                ${p.nom_producto}
+              </option>
+            </datalist>
+
+            <tbody>
+              <tr tal:repeat="p productos" tal:omit-tag="False"></tr>
+            </tbody>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    var nro=0;
+    var productos = [];
+    
+    document.addEventListener("DOMContentLoaded", function () {
+      var fechaIngreso = document.getElementById("fecha-ingreso");
+      var hoy = new Date().toISOString().split("T")[0];
+      fechaIngreso.value = hoy;
+      document.getElementById("fecha-ingreso").value = hoy;
+
+
+      //console.log("productos:",${productos});
+      var todos=JSON.parse(JSON.stringify(${productos}));
+      productos=todos;
+    
+      // if(localStorage.getItem("productos")){
+      //   var produc = JSON.parse(localStorage.getItem("productos"));
+      //   produc.forEach(function(item) {
+      //     var productoEncontrado = productos.find(
+      //       (producto) => producto.id_producto === item.id
+      //     );
+      //     nro+=1;
+      //     const cuerpoTabla = document.getElementById("cuerpoTablaProductos");
+
+      //     const nuevaFila = cuerpoTabla.insertRow();
+
+      //     const celdaNro = nuevaFila.insertCell(0);
+      //     const celdaCodigo = nuevaFila.insertCell(1);
+      //     const celdaProducto = nuevaFila.insertCell(2);
+      //     const celdaPrecio = nuevaFila.insertCell(3);
+      //     const celdaCantidad = nuevaFila.insertCell(4);
+      //     const celdaTotal = nuevaFila.insertCell(5);
+      //     const celdaAcciones = nuevaFila.insertCell(6);
+    
+      //     celdaNro.textContent = nro;
+      //     celdaCodigo.textContent = productoEncontrado.id_producto;
+      //     celdaProducto.textContent = productoEncontrado.nom_producto;
+      //     celdaCantidad.textContent = item.cantidad;
+      //     celdaPrecio.textContent = productoEncontrado.precio;
+      //     celdaTotal.textContent = productoEncontrado.precio * item.cantidad;
+      //     celdaAcciones.innerHTML = `<button class="btn btn-danger btn-sm" onclick="eliminarFila(this)">Eliminar</button>`;
+
+      //   });
+      // }
+
+
+    });
+</script>
+<script>
+   const myForm = document.getElementById('miFormulario');
+     myForm.addEventListener('submit', enviar);
+
+  async function enviar(event) {
+    event.preventDefault();
+    Swal.fire({title:"¿Esta Seguro de enviar el formulario?",showCancelButton: true, icon:"question"}).then(
+      (result) => {
+        if (result.isConfirmed) {
+          //document.getElementById("listado").value = localStorage.getItem("productos");
+          //alert("Enviando formulario con listado:" + document.getElementById("listado").value);
+          document.getElementById("fecha_ingreso_form").value = document.getElementById("fecha-ingreso").value;
+          document.getElementById("factura_form").value = document.getElementById("factura").value;
+          document.getElementById("proveedor_form").value = document.getElementById("proveedor").value;
+          localStorage.removeItem("productos");
+          // const inputElement = document.getElementById('buscarProducto');
+          // const datalistElement = document.getElementById(inputElement.list);
+          // const options = datalistElement.querySelectorAll('option');
+          // alert("Guardando datalist en el formulario:" + options);
+          
+          Swal.fire({
+            position: "top-end",
+            icon: "success",
+            title: "Formulario Enviado",
+            showConfirmButton: false,
+            timer: 3500
+          });
+          this.submit();
+        } else {
+          Swal.fire("Envio Cancelado", "", "info");
+          return false;
+        }
+      }
+    );
+  }
+  function cargaItems() {  
+      nro=0;  
+      if(localStorage.getItem("datalist")){
+        document.getElementById("opcionesProductos").innerHTML = localStorage.getItem("datalist");
+      }
+      if(localStorage.getItem("productos")){
+        var produc = JSON.parse(localStorage.getItem("productos"));
+        produc.forEach(function(item) {
+          nro+=1;
+          const cuerpoTabla = document.getElementById("cuerpoTablaProductos");
+
+          const nuevaFila = cuerpoTabla.insertRow();
+
+          const celdaNro = nuevaFila.insertCell(0);
+          const celdaCodigo = nuevaFila.insertCell(1);
+          const celdaProducto = nuevaFila.insertCell(2);
+          const celdaPrecio = nuevaFila.insertCell(3);
+          const celdaCantidad = nuevaFila.insertCell(4);
+          const celdaTotal = nuevaFila.insertCell(5);
+          const celdaAcciones = nuevaFila.insertCell(6);
+    
+          celdaNro.textContent = nro;
+          celdaCodigo.textContent = item["id_producto"];
+          celdaProducto.textContent = item["nombre"];
+          celdaCantidad.textContent = item["cantidad"];
+          celdaPrecio.textContent = item["precio"];
+          celdaTotal.textContent = item["precio"] * item["cantidad"];
+          celdaAcciones.innerHTML = `<button class="btn btn-danger btn-sm" onclick="eliminarFila(this)">Eliminar</button>`;
+
+        });
+      }
+  }
+  function ingresar() {
+    if (localStorage.getItem("productos")) {
+      Swal.fire({
+        title: "Hay productos agregados, desea eliminarlos?",
+        //showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: "OK",
+        //denyButtonText: `Cancelar`,
+      }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isConfirmed) {
+          localStorage.removeItem("productos")
+          location.reload()
+          ;}else{
+            limpiarTabla();
+            cargaItems();
+          }
+      });
+    } 
+    
+  }
+  function volver() {
+    if (localStorage.getItem("productos")) {
+      Swal.fire({
+        title: "Hay productos agregados, desea salir sin guardar?",
+        //showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: "OK",
+        //denyButtonText: `Cancelar`,
+      }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isConfirmed) {
+          localStorage.removeItem("productos");
+          location.href = "/bodega";
+        } else if (result.isDenied) {
+          Swal.fire("Cancelo Operacion", "", "info");
+        }
+      });
+    } else {
+      location.href = "/bodega";
+    }
+  }
+  function agregar() {
+    var productoId = document.getElementById("buscarProducto").value;
+    const productoEncontrado = productos.find(
+      (producto) => producto.nom_producto === productoId
+    );
+    if (!productoEncontrado) {
+      Swal.fire("Producto no encontrado!", "", "error");
+      document.getElementById("buscarProducto").focus();
+      return;
+    }
+    const productoExistente = JSON.parse(localStorage.getItem("productos")) || [];
+    const yaAgregado = productoExistente.find(
+      (producto) => producto.id_producto === productoEncontrado.id_producto
+    );
+    if (yaAgregado) {
+      Swal.fire("El producto ya fue agregado!", "", "error");
+      document.getElementById("buscarProducto").value = "";
+      document.getElementById("cantidad").value = "";
+      document.getElementById("buscarProducto").focus();
+      return;
+    }
+    if (
+      document.getElementById("cantidad").value == "" ||
+      document.getElementById("cantidad").value <= 0
+    ) {
+      Swal.fire("Ingrese una cantidad valida!", "", "error");
+      document.getElementById("cantidad").focus();
+      return;
+    }
+
+    nro += 1;
+    const cuerpoTabla = document.getElementById("cuerpoTablaProductos");
+
+    const nuevaFila = cuerpoTabla.insertRow();
+
+    const celdaNro = nuevaFila.insertCell(0);
+    const celdaCodigo = nuevaFila.insertCell(1);
+    const celdaProducto = nuevaFila.insertCell(2);
+    const celdaPrecio = nuevaFila.insertCell(3);
+    const celdaCantidad = nuevaFila.insertCell(4);
+    const celdaTotal = nuevaFila.insertCell(5);
+    const celdaAcciones = nuevaFila.insertCell(6);
+
+    celdaNro.textContent = nro;
+    celdaCodigo.textContent = productoEncontrado.id_producto;
+    celdaProducto.textContent = productoEncontrado.nom_producto;
+    celdaCantidad.textContent = document.getElementById("cantidad").value;
+    celdaPrecio.textContent = productoEncontrado.precio;
+    celdaTotal.textContent =
+    productoEncontrado.precio * document.getElementById("cantidad").value;
+    celdaAcciones.innerHTML = `<button class="btn btn-danger btn-sm" onclick="eliminarFila(this)">Eliminar</button>`;
+    
+    if (localStorage.getItem("productos")) {
+      var produc = JSON.parse(localStorage.getItem("productos"));
+      produc.push({
+        id_producto: productoEncontrado.id_producto,
+        nombre: productoEncontrado.nom_producto,
+        precio: productoEncontrado.precio,
+        cantidad: parseInt(document.getElementById("cantidad").value),
+      });
+      localStorage.setItem("productos", JSON.stringify(produc));
+    } else {
+      var produc = [];
+      produc.push({
+        id_producto: productoEncontrado.id_producto,
+        nombre: productoEncontrado.nom_producto,
+        precio: productoEncontrado.precio,
+        cantidad: parseInt(document.getElementById("cantidad").value),
+      });
+      localStorage.setItem("productos", JSON.stringify(produc));
+    }
+    document.getElementById("buscarProducto").value = "";
+    document.getElementById("cantidad").value = "";
+    document.getElementById("listado").innerHTML =
+      localStorage.getItem("productos");
+    document.getElementById("buscarProducto").focus();
+  }
+  function eliminarFila(boton) {
+    Swal.fire({
+      title: "Esta seguro de eliminara el producto ?",
+      //showDenyButton: true,
+      showCancelButton: true,
+      confirmButtonText: "OK",
+      //denyButtonText: `Cancelar`,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const filaAEliminar = boton.closest("tr");
+        const fila = boton.parentNode.parentNode;
+        const indiceFila = fila.rowIndex - 1;
+        let arreglo = localStorage.getItem("productos");
+        arreglo = JSON.parse(arreglo);
+        arreglo.splice(indiceFila, 1);
+        localStorage.setItem("productos", JSON.stringify(arreglo));
+        if (filaAEliminar) {
+          filaAEliminar.remove();
+        }
+        Swal.fire("Eliminado!", "", "success");
+      } else if (result.isDenied) {
+        Swal.fire("Cancelo Operacion", "", "info");
+      }
+    });
+  }
+  function limpiarTabla() {
+  const tbody = document.getElementById('tabla_productos').getElementsByTagName('tbody')[0];
+  tbody.innerHTML = '';
+}
+</script>
+<script>
+  $(document).ready(function () {
+    ingresar();
+  });
+</script>
