@@ -43,7 +43,7 @@
                     </div>
                     <div class="destacado col-lg-5 col-sm-12 py-4 text-center">
                         <h1>Sistema de administración de talleres DuocUC</h1>
-                        <h2>Version 1.2</h2>
+                        <h2>Version 1.4</h2>
                         <br>
                         <a href="/login/">
                             <button type="button" class="btn btn-warning">Ingresar</button>
