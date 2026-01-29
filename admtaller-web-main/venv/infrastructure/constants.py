@@ -3,8 +3,9 @@ from enum import Enum
 
 
 class APITaller(str, Enum):
-    # ERA http://localhost:8001/api
-    URL_BASE = "http://localhost:8010/api"
+    # ERA http://localhost:8001/api 
+    # "http://localhost:8010/api"
+    URL_BASE = "https://gastro2025-production.up.railway.app"
 
 
 class Mensajes(str, Enum):
