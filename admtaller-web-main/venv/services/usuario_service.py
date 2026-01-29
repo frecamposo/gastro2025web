@@ -32,7 +32,7 @@ async def autenticacion(login: str, password: str) -> Optional[dict]:
         "hash_password": password,
         "autenticado": False,
     }
-
+    print("Datos",autenticacion)
     # Armamos la URL de la API respectiva
     url = f"{APITaller.URL_BASE.value}/autenticacion"
 
