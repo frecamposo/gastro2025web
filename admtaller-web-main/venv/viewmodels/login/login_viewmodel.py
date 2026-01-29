@@ -33,7 +33,7 @@ class LoginViewModel(ViewModelBase):
             # Encriptamos la password para enviarla al servicio de autenticación
             self.password = hash_text(self.password)
             autenticacion = await usuario_service.autenticacion(self.login, self.password)
-
+            print("Datos Authentiacion:",autenticacion)
             if not autenticacion["autenticado"]:
                 self.msg_error = "El usuario y contraseña no son válidos en el sistema"
             else:
