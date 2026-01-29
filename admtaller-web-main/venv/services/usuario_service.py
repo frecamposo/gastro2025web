@@ -35,7 +35,7 @@ async def autenticacion(login: str, password: str) -> Optional[dict]:
     print("Datos",autenticacion)
     # Armamos la URL de la API respectiva
     url = f"{APITaller.URL_BASE.value}/autenticacion"
-
+    print("La URL es:",url)
     async with httpx.AsyncClient() as client:
         try:
             response: Response = await client.post(url, json=autenticacion, follow_redirects=True)
