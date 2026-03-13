@@ -195,6 +195,7 @@
                                     </a>
                                     <ul class="dropdown-menu bg-body-secondary text-dark">
                                         <li><a class="dropdown-item bg-body-light text-dark" href="/producto/lista">Productos</a></li>
+                                        <li><a class="dropdown-item bg-body-light text-dark" href="/bodega">Menu Bodega</a></li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown">
